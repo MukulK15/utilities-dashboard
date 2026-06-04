@@ -91,7 +91,12 @@
 
         <!-- Data Table -->
         <div class="card table-card">
-            <h3>Utilities Details</h3>
+            <div class="table-header">
+                <h3>Utilities Details</h3>
+                <div class="table-info">
+                    <span id="tableRecordCount">Showing 0 of 0 records</span>
+                </div>
+            </div>
             <div class="table-wrapper">
                 <table id="dataTable" class="data-table">
                     <thead>
@@ -110,6 +115,14 @@
                     </tbody>
                 </table>
             </div>
+            <!-- Pagination Controls -->
+            <div class="pagination">
+                <button id="prevBtn" class="pagination-btn" disabled>← Previous</button>
+                <div class="pagination-info">
+                    <span id="pageInfo">Page 0</span>
+                </div>
+                <button id="nextBtn" class="pagination-btn" disabled>Next →</button>
+            </div>
         </div>
 
         <!-- Instructions -->
@@ -127,6 +140,7 @@
                 <li>Click "Upload Excel File" to select your file</li>
                 <li>Click "Load Data" to process and visualize</li>
                 <li>The dashboard will automatically calculate total savings and year-wise trends</li>
+                <li>Use pagination to browse through utilities (20 per page)</li>
                 <li>To load updated data from the same file, click "Load Data" again</li>
             </ol>
         </div>
