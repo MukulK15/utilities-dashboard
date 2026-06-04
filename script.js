@@ -5,6 +5,37 @@ let chartInstances = {
     statusChart: null
 };
 
+// Check if libraries are loaded
+window.addEventListener('load', function() {
+    setTimeout(function() {
+        if (typeof XLSX === 'undefined') {
+            document.getElementById('libraryStatus').style.display = 'block';
+            console.warn('XLSX library may not have loaded. Retrying...');
+            // Try to load XLSX from fallback source
+            loadXLSXFallback();
+        } else {
+            document.getElementById('libraryStatus').style.display = 'none';
+        }
+        if (typeof Chart === 'undefined') {
+            console.warn('Chart.js library may not have loaded.');
+        }
+    }, 2000);
+});
+
+// Fallback function to load XLSX if CDN fails
+function loadXLSXFallback() {
+    const script = document.createElement('script');
+    script.src = 'https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js';
+    script.onload = function() {
+        console.log('XLSX loaded from fallback CDN');
+        document.getElementById('libraryStatus').style.display = 'none';
+    };
+    script.onerror = function() {
+        console.error('Failed to load XLSX from both CDNs. Please check internet connection.');
+    };
+    document.head.appendChild(script);
+}
+
 // File input handler
 document.getElementById('excelFile').addEventListener('change', function(e) {
     excelFile = e.target.files[0];
@@ -21,6 +52,13 @@ document.getElementById('loadBtn').addEventListener('click', loadData);
  * Load and process Excel data
  */
 function loadData() {
+    // Check if XLSX is available
+    if (typeof XLSX === 'undefined') {
+        alert('XLSX library is still loading. Please wait a moment and try again.');
+        console.error('XLSX is not defined');
+        return;
+    }
+
     if (!excelFile) {
         alert('Please select a file first');
         return;
@@ -48,7 +86,7 @@ function loadData() {
             document.getElementById('fileStatus').textContent = `✓ Data loaded successfully!`;
         } catch (error) {
             alert(`Error reading file: ${error.message}`);
-            console.error(error);
+            console.error('Full error:', error);
         }
     };
     reader.readAsArrayBuffer(excelFile);
@@ -125,6 +163,10 @@ function updateDashboard(data) {
  * Update charts
  */
 function updateCharts(data) {
+    if (typeof Chart === 'undefined') {
+        console.error('Chart.js is not loaded');
+        return;
+    }
     updateSavingsChart(data.savingsByYear);
     updateStatusChart(data.activeUtilities, data.inactiveUtilities);
 }
