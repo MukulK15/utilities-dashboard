@@ -5,8 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Utilities Innovation Dashboard</title>
     <link rel="stylesheet" href="styles.css">
+    <!-- XLSX Library - Multiple CDN sources for reliability -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.min.js"></script>
+    <script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- Chart.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://unpkg.com/chart.js@3.9.1/dist/chart.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -24,6 +28,11 @@
             </div>
             <button id="loadBtn" class="load-btn" disabled>Load Data</button>
             <span id="fileStatus" class="file-status"></span>
+        </div>
+
+        <!-- Library Status Check -->
+        <div id="libraryStatus" style="display:none; background: #fff3cd; padding: 10px; border-radius: 5px; margin-bottom: 20px; color: #856404;">
+            ⚠️ Loading libraries... Please wait a moment.
         </div>
 
         <!-- Dashboard Grid -->
