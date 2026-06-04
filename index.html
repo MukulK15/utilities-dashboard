@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Utilities Innovation Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>🚀 Utilities Innovation Dashboard</h1>
+            <p>Track team innovation metrics and cost savings</p>
+        </header>
+
+        <!-- File Upload Section -->
+        <div class="upload-section">
+            <div class="file-input-wrapper">
+                <input type="file" id="excelFile" accept=".xlsx,.xls,.csv" class="file-input">
+                <label for="excelFile" class="file-label">📁 Upload Excel File</label>
+            </div>
+            <button id="loadBtn" class="load-btn" disabled>Load Data</button>
+            <span id="fileStatus" class="file-status"></span>
+        </div>
+
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Key Metrics Cards -->
+            <div class="card metric-card">
+                <div class="card-header">
+                    <h3>Utilities Created</h3>
+                    <span class="icon">📊</span>
+                </div>
+                <div class="card-value" id="utilitiesCreated">0</div>
+                <p class="card-subtitle">Total utilities built</p>
+            </div>
+
+            <div class="card metric-card">
+                <div class="card-header">
+                    <h3>Total Utilizations</h3>
+                    <span class="icon">⚡</span>
+                </div>
+                <div class="card-value" id="totalUtilizations">0</div>
+                <p class="card-subtitle">Times utilities were used</p>
+            </div>
+
+            <div class="card metric-card">
+                <div class="card-header">
+                    <h3>Total Savings</h3>
+                    <span class="icon">💰</span>
+                </div>
+                <div class="card-value" id="totalSavings">$0</div>
+                <p class="card-subtitle">Cumulative cost savings</p>
+            </div>
+
+            <div class="card metric-card">
+                <div class="card-header">
+                    <h3>Average Savings</h3>
+                    <span class="icon">📈</span>
+                </div>
+                <div class="card-value" id="averageSavings">$0</div>
+                <p class="card-subtitle">Per utilization</p>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-section">
+            <div class="card chart-card">
+                <h3>Year-wise Savings Trend</h3>
+                <canvas id="savingsChart"></canvas>
+            </div>
+
+            <div class="card chart-card">
+                <h3>Utilities by Status</h3>
+                <canvas id="statusChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Data Table -->
+        <div class="card table-card">
+            <h3>Utilities Details</h3>
+            <div class="table-wrapper">
+                <table id="dataTable" class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Utility Name</th>
+                            <th>Created Date</th>
+                            <th>Utilizations</th>
+                            <th>Savings Per Use ($)</th>
+                            <th>Total Savings ($)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="5" class="empty-message">No data loaded yet</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="card instructions-card">
+            <h3>📋 How to Use</h3>
+            <ol>
+                <li>Prepare your Excel file with the following columns:
+                    <ul>
+                        <li><strong>Utility Name</strong> - Name of the utility</li>
+                        <li><strong>Created Date</strong> - Date created (YYYY-MM-DD)</li>
+                        <li><strong>Utilizations</strong> - Number of times used</li>
+                        <li><strong>Savings Per Use</strong> - Cost savings per utilization ($)</li>
+                    </ul>
+                </li>
+                <li>Click "Upload Excel File" to select your file</li>
+                <li>Click "Load Data" to process and visualize</li>
+                <li>The dashboard will automatically calculate total savings and year-wise trends</li>
+            </ol>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
