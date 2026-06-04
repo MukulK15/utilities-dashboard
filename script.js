@@ -4,6 +4,8 @@ let chartInstances = {
     savingsChart: null,
     statusChart: null
 };
+let lastLoadedData = null;
+let autoRefreshInterval = null;
 
 // Check if libraries are loaded
 window.addEventListener('load', function() {
@@ -11,13 +13,9 @@ window.addEventListener('load', function() {
         if (typeof XLSX === 'undefined') {
             document.getElementById('libraryStatus').style.display = 'block';
             console.warn('XLSX library may not have loaded. Retrying...');
-            // Try to load XLSX from fallback source
             loadXLSXFallback();
         } else {
             document.getElementById('libraryStatus').style.display = 'none';
-        }
-        if (typeof Chart === 'undefined') {
-            console.warn('Chart.js library may not have loaded.');
         }
     }, 2000);
 });
@@ -28,7 +26,9 @@ function loadXLSXFallback() {
     script.src = 'https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js';
     script.onload = function() {
         console.log('XLSX loaded from fallback CDN');
-        document.getElementById('libraryStatus').style.display = 'none';
+        if (document.getElementById('libraryStatus')) {
+            document.getElementById('libraryStatus').style.display = 'none';
+        }
     };
     script.onerror = function() {
         console.error('Failed to load XLSX from both CDNs. Please check internet connection.');
@@ -42,19 +42,59 @@ document.getElementById('excelFile').addEventListener('change', function(e) {
     if (excelFile) {
         document.getElementById('fileStatus').textContent = `✓ File selected: ${excelFile.name}`;
         document.getElementById('loadBtn').disabled = false;
+        // Enable auto-refresh for this file
+        enableAutoRefresh();
     }
 });
 
 // Load data button
 document.getElementById('loadBtn').addEventListener('click', loadData);
 
+// Clear data button
+if (document.getElementById('clearBtn')) {
+    document.getElementById('clearBtn').addEventListener('click', clearData);
+}
+
+/**
+ * Enable auto-refresh - checks for file changes every 5 seconds
+ */
+function enableAutoRefresh() {
+    // Clear any existing interval
+    if (autoRefreshInterval) {
+        clearInterval(autoRefreshInterval);
+    }
+    
+    // Check for file updates every 5 seconds
+    autoRefreshInterval = setInterval(function() {
+        if (excelFile) {
+            console.log('Auto-checking for file updates...');
+            loadData(true); // Load with auto-refresh flag
+        }
+    }, 5000);
+    
+    console.log('Auto-refresh enabled - checking every 5 seconds');
+}
+
+/**
+ * Disable auto-refresh
+ */
+function disableAutoRefresh() {
+    if (autoRefreshInterval) {
+        clearInterval(autoRefreshInterval);
+        autoRefreshInterval = null;
+        console.log('Auto-refresh disabled');
+    }
+}
+
 /**
  * Load and process Excel data
  */
-function loadData() {
+function loadData(isAutoRefresh = false) {
     // Check if XLSX is available
     if (typeof XLSX === 'undefined') {
-        alert('XLSX library is still loading. Please wait a moment and try again.');
+        if (!isAutoRefresh) {
+            alert('XLSX library is still loading. Please wait a moment and try again.');
+        }
         console.error('XLSX is not defined');
         return;
     }
@@ -73,28 +113,81 @@ function loadData() {
             const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
             if (jsonData.length === 0) {
-                alert('No data found in Excel file');
+                if (!isAutoRefresh) {
+                    alert('No data found in Excel file');
+                }
                 return;
             }
 
             // Process the data
             const processedData = processData(jsonData);
             
+            // Check if data has changed (for auto-refresh)
+            const dataJSON = JSON.stringify(processedData);
+            if (isAutoRefresh && lastLoadedData === dataJSON) {
+                console.log('No changes detected');
+                return;
+            }
+            
+            // Store current data for comparison
+            lastLoadedData = dataJSON;
+            
             // Update dashboard
             updateDashboard(processedData);
             
-            document.getElementById('fileStatus').textContent = `✓ Data loaded successfully!`;
-            
-            // Reset file input for next upload
-            document.getElementById('excelFile').value = '';
-            excelFile = null;
+            if (isAutoRefresh) {
+                console.log('✓ Dashboard auto-updated with new data');
+            } else {
+                document.getElementById('fileStatus').textContent = `✓ Data loaded successfully!`;
+                // Show clear button after data loads
+                if (document.getElementById('clearBtn')) {
+                    document.getElementById('clearBtn').style.display = 'inline-block';
+                }
+            }
             
         } catch (error) {
-            alert(`Error reading file: ${error.message}`);
-            console.error('Full error:', error);
+            if (!isAutoRefresh) {
+                alert(`Error reading file: ${error.message}`);
+                console.error('Full error:', error);
+            }
         }
     };
     reader.readAsArrayBuffer(excelFile);
+}
+
+/**
+ * Clear all data and reset dashboard
+ */
+function clearData() {
+    // Reset variables
+    excelFile = null;
+    lastLoadedData = null;
+    
+    // Disable auto-refresh
+    disableAutoRefresh();
+    
+    // Clear file input
+    document.getElementById('excelFile').value = '';
+    
+    // Reset metric cards
+    document.getElementById('utilitiesCreated').textContent = '0';
+    document.getElementById('totalUtilizations').textContent = '0';
+    document.getElementById('totalSavings').textContent = '$0';
+    document.getElementById('averageSavings').textContent = '$0';
+    
+    // Clear charts
+    clearCharts();
+    
+    // Reset table
+    const tbody = document.querySelector('#dataTable tbody');
+    tbody.innerHTML = '<tr><td colspan="5" class="empty-message">No data loaded yet</td></tr>';
+    
+    // Reset UI
+    document.getElementById('fileStatus').textContent = '';
+    document.getElementById('loadBtn').disabled = true;
+    document.getElementById('clearBtn').style.display = 'none';
+    
+    console.log('Dashboard cleared');
 }
 
 /**
@@ -312,3 +405,6 @@ function updateTable(utilities) {
 
 // Initial state
 document.getElementById('loadBtn').disabled = true;
+if (document.getElementById('clearBtn')) {
+    document.getElementById('clearBtn').style.display = 'none';
+}
