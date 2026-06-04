@@ -84,6 +84,11 @@ function loadData() {
             updateDashboard(processedData);
             
             document.getElementById('fileStatus').textContent = `✓ Data loaded successfully!`;
+            
+            // Reset file input for next upload
+            document.getElementById('excelFile').value = '';
+            excelFile = null;
+            
         } catch (error) {
             alert(`Error reading file: ${error.message}`);
             console.error('Full error:', error);
@@ -146,17 +151,36 @@ function processData(rawData) {
  * Update all dashboard elements
  */
 function updateDashboard(data) {
+    console.log('Updating dashboard with new data:', data);
+    
     // Update metric cards
     document.getElementById('utilitiesCreated').textContent = data.totalUtilitiesCreated;
     document.getElementById('totalUtilizations').textContent = data.totalUtilizations.toLocaleString();
     document.getElementById('totalSavings').textContent = `$${data.totalSavings.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
     document.getElementById('averageSavings').textContent = `$${data.averageSavings.toFixed(2)}`;
 
+    // Clear previous charts before creating new ones
+    clearCharts();
+    
     // Update charts
     updateCharts(data);
 
     // Update table
     updateTable(data.utilities);
+}
+
+/**
+ * Clear existing charts
+ */
+function clearCharts() {
+    if (chartInstances.savingsChart) {
+        chartInstances.savingsChart.destroy();
+        chartInstances.savingsChart = null;
+    }
+    if (chartInstances.statusChart) {
+        chartInstances.statusChart.destroy();
+        chartInstances.statusChart = null;
+    }
 }
 
 /**
